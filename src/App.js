@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
+import Input from "./components/input";
+import Todo from "./components/todo";
 
 function App() {
-  const baseUrl = "http://localhost:8080/todo";
+  const baseUrl = "https://rgh.synology.me:8081/todo";
   const [todos, setTodos] = useState([]);
   const [input, setInput] = useState("");
 
@@ -13,6 +15,7 @@ function App() {
 
   //TodoList 가져오기
   async function getTodos() {
+    console.log(baseUrl);
     await axios
       .get(baseUrl)
       .then((response) => {
@@ -40,7 +43,7 @@ function App() {
           todoName: input,
         })
         .then((response) => {
-          console.log(response.data);
+          // console.log(response.data);
           setInput("");
           getTodos();
         })
@@ -78,9 +81,7 @@ function App() {
         .then((response) => {
           // getTodos();
           //DB는 수정되니 화면에서만 바꾸기!
-          setTodos(
-            todos.filter((todo) => todo.id !== id)
-          );
+          setTodos(todos.filter((todo) => todo.id !== id));
         })
         .catch((error) => {
           console.error(error);
@@ -92,33 +93,21 @@ function App() {
   return (
     <div className="App">
       <h1>Todo List</h1>
-      <form onSubmit={insertTodo}>
-        <label>
-          Todo &nbsp;
-          <input
-            type="text"
-            required={true}
-            value={input}
-            onChange={changeText}
-          />
-        </label>
-        <input type="submit" value="Create" />
-      </form>
+      <Input
+        handleSubmit={insertTodo}
+        input={input}
+        handleChange={changeText}
+      />
       <div>
         {todos
           ? todos.map((todo) => {
               return (
-                <div className="todo" key={todo.id}>
-                  <h3>
-                    <label
-                      onClick={() => updateTodo(todo.id)}
-                      className={todo.completed ? "completed" : null}
-                    >
-                      {todo.todoName}
-                    </label>
-                    <label onClick={() => deleteTodo(todo.id)}>&nbsp;&nbsp;❌</label>
-                  </h3>
-                </div>
+                <Todo
+                  handleClick={() => updateTodo(todo.id)}
+                  todo={todo}
+                  handleDelete={() => deleteTodo(todo.id)}
+                  key={todo.id}
+                />
               );
             })
           : null}
